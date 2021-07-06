@@ -46,14 +46,14 @@ build_plot_df <- function(episode_tweets_w_mins){
   sentiments <- words_w_sentiment(episode_tweets_w_mins)
   plot_df <- inner_join(sentiment_by_minute(sentiments),
                     popular_sentimental_words(sentiments)) %>% 
-    mutate(label_point = (abs(cume_dist(test_plot$minute_sent) - 0.5) > 0.48),
+    mutate(label_point = (abs(cume_dist(minute_sent) - 0.5) > 0.48),
            point_alpha = ifelse(label_point, 1, 0),
            point_label = ifelse(label_point, most_popular, NA_character_))
 }
 
 ##### Generate visuals #####
 
-generate_sent_plot <- function(plot_df){
+generate_sent_plot <- function(plot_df, episode_number){
   sent_plot <- ggplot(plot_df,
                       aes(x = minutes_in,
                           y = cumulative_sent)) +
@@ -64,7 +64,7 @@ generate_sent_plot <- function(plot_df){
     scale_alpha(guide = "none") +
     labs(title = "Tell Us How You Really Feel",
          subtitle = "Cumulative sentiment of words tweeted with hashtag #theBachelorette.\nLabels show most common 'sentimental' words.",
-         x = "Minutes Into Episode",
+         x = paste("Minutes Into Episode", episode_number),
          y = "Cumulative Sentiment (AFINN)",
          caption = "Data: Twitter API\nGraph: @DrAOndrus") +
     theme_hc()

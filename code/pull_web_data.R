@@ -10,7 +10,7 @@ library(lubridate)
 # the episode in interest ending, you should catch everything
 
 get_bach_tweets <- function(hashtag){
-  bach_tweets <- search_tweets(hashtag, n = 18000)
+  bach_tweets <- search_tweets(hashtag, n = 18000, include_rts = FALSE)
   write_as_csv(bach_tweets, paste("tweets_", Sys.Date(), ".csv", sep = ""))
   return(bach_tweets)
 }

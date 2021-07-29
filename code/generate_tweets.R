@@ -4,7 +4,7 @@ library(rtweet)
 
 ##### Store tweet text #####
 
-cumulative_sent_text <- "Sentiment calculated with the AFINN lexicon and techniques from https://www.tidytextmining.com/sentiment.html. #theBachelorette #data"
+cumulative_sent_text <- "How do people feel about the Bachelorette? Techniques from https://www.tidytextmining.com/sentiment.html. #theBachelorette #data"
 
 ##### Generate tweet #####
 

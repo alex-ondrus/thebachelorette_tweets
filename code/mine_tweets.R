@@ -65,7 +65,7 @@ generate_sent_plot <- function(plot_df, episode_number){
     labs(title = "Tell Us How You Really Feel",
          subtitle = "Cumulative sentiment of words tweeted with hashtag #theBachelorette.\nLabels show most common 'sentimental' words.",
          x = paste("Minutes Into Episode", episode_number),
-         y = "Cumulative Sentiment (AFINN)",
+         y = "AFINN Sentiment, Higher = More Positive",
          caption = "Data: Twitter API\nGraph: @DrAOndrus") +
     theme_hc()
   ggsave("images/sent_by_min.jpeg",
@@ -74,3 +74,4 @@ generate_sent_plot <- function(plot_df, episode_number){
          dpi = 600)
   return(sent_plot)
 }
+

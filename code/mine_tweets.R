@@ -5,10 +5,14 @@ library(tidytext)
 library(magrittr)
 library(ggrepel)
 library(ggthemes)
+library(ggfittext)
 
 afinn_sent <- get_sentiments("afinn")
 
-##### Analyze sentiment #####
+##### Cumulative sentiment by minute #####
+
+# These functions prep the data for analyzing the cumulative sentiment
+# of the words expressed at a minute-by-minute resolution
 
 words_w_sentiment <- function(episode_tweets_w_mins){
   sents <- episode_tweets_w_mins %>% 
@@ -51,8 +55,6 @@ build_plot_df <- function(episode_tweets_w_mins){
            point_label = ifelse(label_point, most_popular, NA_character_))
 }
 
-##### Generate visuals #####
-
 generate_sent_plot <- function(plot_df, episode_number){
   sent_plot <- ggplot(plot_df,
                       aes(x = minutes_in,
@@ -75,3 +77,64 @@ generate_sent_plot <- function(plot_df, episode_number){
   return(sent_plot)
 }
 
+##### TF-IDF by 5 min Increments #####
+
+# The goal of these functions is to create a histogram of the number of tweets,
+# annotated by the word with the highest TF-IDF score
+
+# This section takes the output of episode_tweet_text_time and creates a data frame of
+# labels for the histogram bars
+
+ten_min_tf_idf <- function(live_tweets){
+  words_by_minute <- live_tweets %>% 
+    filter(minutes_in < 60) %>% 
+    mutate(increment_number = floor(minutes_in/10)+1) %>% 
+    unnest_tokens(word, text) %>% 
+    count(increment_number, word, sort = TRUE)
+  
+  total_words <- words_by_minute %>% 
+    group_by(increment_number) %>% 
+    summarise(total = sum(n))
+  
+  words_by_minute <- left_join(words_by_minute, total_words)
+  
+  words_tf_idf <- words_by_minute %>% 
+    bind_tf_idf(word, increment_number, n) %>% 
+    group_by(increment_number) %>% 
+    filter(tf_idf == max(tf_idf)) %>% 
+    summarise(word = paste0(word, collapse = ", "),
+              total = total,
+              tf_idf = tf_idf) %>% 
+    distinct() %>% 
+    arrange(increment_number) %>% 
+    select(increment_number, word, total, tf_idf)
+}
+
+tf_idf_clock_plot <- function(tf_idf_summary, episode_date = ''){
+  plot_df <- tf_idf_summary %>% 
+    add_column(x_start = (0:5)*10,
+               x_end = (1:6)*10)
+  
+  clock_plot <- ggplot(plot_df,
+                       aes(xmin = x_start,
+                           xmax = x_end,
+                           ymax = total,
+                           label = word,
+                           ymin = 0)) +
+    geom_rect(fill = "#a1d5ee",
+              colour = "grey") +
+    geom_fit_text(place = "top",
+                  contrast = TRUE) +
+    coord_polar() +
+    theme_minimal() +
+    #scale_y_continuous(labels = NULL) +
+    labs(title = paste("#BB23 Tweets", episode_date),
+         subtitle = "Number of words/most 'summary' words for tweets\nsent in each 10 minute segment during episode airing",
+         caption = "Radius = number of words tweeted\nLabel = Word with highest tf-idf score\nData = @twitter via rtweet\nGraph = @DrAOndrus")
+  
+  ggsave("images/ten_min_tf_idf_summary.jpeg",
+         width = 5,
+         height = 5,
+         units = "in")
+  return(clock_plot)
+}

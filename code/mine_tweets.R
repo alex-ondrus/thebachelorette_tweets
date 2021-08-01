@@ -100,13 +100,13 @@ ten_min_tf_idf <- function(live_tweets){
   
   words_tf_idf <- words_by_minute %>% 
     bind_tf_idf(word, increment_number, n) %>% 
-    group_by(increment_number) %>% 
-    filter(tf_idf == max(tf_idf)) %>% 
+    group_by(increment_number) %>%
+    filter(tf_idf == max(tf_idf)) %>%
     summarise(word = paste0(word, collapse = ", "),
               total = total,
-              tf_idf = tf_idf) %>% 
-    distinct() %>% 
-    arrange(increment_number) %>% 
+              tf_idf = tf_idf) %>%
+    distinct() %>%
+    arrange(increment_number) %>%
     select(increment_number, word, total, tf_idf)
 }
 

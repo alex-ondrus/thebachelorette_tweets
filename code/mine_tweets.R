@@ -6,6 +6,7 @@ library(magrittr)
 library(ggrepel)
 library(ggthemes)
 library(ggfittext)
+library(widyr)
 
 afinn_sent <- get_sentiments("afinn")
 
@@ -137,4 +138,90 @@ tf_idf_clock_plot <- function(tf_idf_summary, episode_date = ''){
          height = 5,
          units = "in")
   return(clock_plot)
+}
+
+##### Word Association #####
+
+# Given a list of contestants on a show, these functions combine to generate a 
+# bar graph showing the top num_words associated words for each contestant
+
+gen_contest_cors <- function(live_tweets,
+                             contestant_list,
+                             num_words = 3,
+                             freq_filter = 20,
+                             extra_stop_words = c()){
+  tweet_cors <- live_tweets %>% 
+    unnest_tokens(word, text) %>% 
+    select(status_id, word) %>% 
+    group_by(word) %>% 
+    filter(n() >= freq_filter) %>% 
+    pairwise_cor(word, status_id, sort = TRUE) %>% 
+    filter(item1 %in% contestant_list) %>% 
+    anti_join(stop_words, by = c("item2" = "word")) %>% 
+    filter(!(item2 %in% str_to_lower(extra_stop_words))) %>% 
+    group_by(item1) %>% 
+    slice_max(correlation, n = num_words) %>% 
+    mutate(item1 = str_to_title(item1),
+           item2 = str_to_title(item2)) %>% 
+    rename(contestant = item1,
+           word = item2)
+}
+
+gen_cor_bars <- function(contest_cors, eps_date, num_cols = 3, im_width = 7, im_height = 8){
+  cor_bars <- ggplot(contest_cors,
+                      aes(x = correlation,
+                          y = reorder(word, correlation),
+                          label = word)) +
+    geom_bar(stat = "identity") + 
+    geom_bar_text(colour = "white") + 
+    facet_wrap(~contestant, scales = "free", ncol = num_cols) + 
+    scale_y_discrete(breaks = NULL) + 
+    labs(y = NULL,
+         title = "Word Association",
+         subtitle = paste("3 words most strongly associated with each contestant during",
+                          eps_date,
+                          "episode"),
+         x = "Phi coefficient",
+         caption = "Data = @twitter via rtweet\nGraph = @DrAOndrus") + 
+    theme_economist_white() +
+    theme(panel.spacing.x = unit(2, "lines"))
+  ggsave(filename = "images/cor_bars.jpg",
+         plot = cor_bars,
+         width = im_width,
+         height = im_height,
+         units = "in")
+  return(cor_bars)
+}
+
+##### BB23 Specific Fixes #####
+
+bb23_cast <- c("azah",
+               "christian",
+               "hannah",
+               "britini",
+               "derekf",
+               "alyssa",
+               "tiffany",
+               "xavier",
+               "claire",
+               "sarah",
+               "whitney",
+               "derekx",
+               "kyland")
+
+bb23_name_fixes <- function(bb_live){
+  aliases <- c("derek f", "derek x", "sarah beth", "sb","dx")
+  matched_names <- c("derekf", "derekx", "sarah", "sarah","derekx")
+  bb_live %<>% mutate(text = str_to_lower(text))
+  for(i in 1:length(aliases)){
+    bb_live %<>% 
+      mutate(text = str_replace(text, coll(aliases[i]), matched_names[i]))
+  }
+  return(bb_live)
+}
+
+bb23_cor_fixes <- function(bb_cor){
+  bb_cor %<>% mutate(contestant = recode(contestant,
+                                         "Derekx" = "Derek X",
+                                         "Derekf" = "Derek F"))
 }

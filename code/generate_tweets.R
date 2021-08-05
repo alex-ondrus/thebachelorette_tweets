@@ -39,3 +39,13 @@ generate_bb_tf_idf_tweet <- function(){
              media = "images/ten_min_tf_idf_summary.jpeg",
              token = token)
 }
+
+##### Word Association Tweets #####
+
+bb_word_association_text <- "What words are commonly associated with each #bb23 contestant on twitter? #datavis #textmining #rstats Techniques from https://www.tidytextmining.com/ngrams.html code on https://github.com/alex-ondrus/tv_tweets"
+
+generate_bb_cor_bars_tweet <- function(){
+  post_tweet(status = bb_word_association_text,
+             media = "images/cor_bars.jpg",
+             token = token)
+}

@@ -29,7 +29,7 @@ episode_tweet_text_time <- function(bach_tweets,
   episode_tweets <- bach_tweets %>% 
     filter(created_at <= episode_end,
            created_at >= episode_start) %>% 
-    select(created_at, text) %>% 
+    select(status_id, created_at, text) %>% 
     mutate(seconds_in = created_at - episode_start,
            minutes_in = round(as.numeric(seconds_in/60)))
   

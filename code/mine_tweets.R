@@ -210,8 +210,8 @@ bb23_cast <- c("azah",
                "kyland")
 
 bb23_name_fixes <- function(bb_live){
-  aliases <- c("derek f", "derek x", "sarah beth", "sb","dx")
-  matched_names <- c("derekf", "derekx", "sarah", "sarah","derekx")
+  aliases <- c("derek f", "derek x", "sarah beth", "sb","dx", "ky ")
+  matched_names <- c("derekf", "derekx", "sarah", "sarah","derekx", "kyland ")
   bb_live %<>% mutate(text = str_to_lower(text))
   for(i in 1:length(aliases)){
     bb_live %<>% 
@@ -222,6 +222,9 @@ bb23_name_fixes <- function(bb_live){
 
 bb23_cor_fixes <- function(bb_cor){
   bb_cor %<>% mutate(contestant = recode(contestant,
+                                         "Derekx" = "Derek X",
+                                         "Derekf" = "Derek F"),
+                     word = recode(word,
                                          "Derekx" = "Derek X",
                                          "Derekf" = "Derek F"))
 }

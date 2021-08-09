@@ -205,7 +205,6 @@ bb23_cast <- c("azah",
                "xavier",
                "claire",
                "sarah",
-               "whitney",
                "derekx",
                "kyland")
 
@@ -226,5 +225,6 @@ bb23_cor_fixes <- function(bb_cor){
                                          "Derekf" = "Derek F"),
                      word = recode(word,
                                          "Derekx" = "Derek X",
-                                         "Derekf" = "Derek F"))
+                                         "Derekf" = "Derek F",
+                                   "Ky" = "Kyland"))
 }

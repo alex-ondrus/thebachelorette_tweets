@@ -9,9 +9,9 @@ library(lubridate)
 # This function will only pull tweets during the last 7 days, so if run within 7 days of
 # the episode in interest ending, you should catch everything. DON'T INCLUDE THE '#'
 
-get_bach_tweets <- function(hashtag){
+get_bach_tweets <- function(hashtag, num_tweets = 30000){
   bach_tweets <- search_tweets(paste("#",hashtag, sep = ""),
-                               n = 30000, 
+                               n = num_tweets, 
                                include_rts = FALSE, 
                                retryonratelimit = TRUE)
   write_as_csv(bach_tweets, paste(hashtag, "_tweets_", Sys.Date(), ".csv", sep = ""))

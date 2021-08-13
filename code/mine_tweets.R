@@ -159,7 +159,9 @@ gen_contest_cors <- function(live_tweets,
     filter(item1 %in% contestant_list) %>% 
     anti_join(stop_words, by = c("item2" = "word")) %>% 
     filter(!(item2 %in% str_to_lower(extra_stop_words))) %>% 
+    filter(!(item1 == "derekx" & item2 == "dx")) %>% 
     group_by(item1) %>% 
+    filter(item1 != item2) %>% 
     slice_max(correlation, n = num_words) %>% 
     mutate(item1 = str_to_title(item1),
            item2 = str_to_title(item2)) %>% 
@@ -226,5 +228,8 @@ bb23_cor_fixes <- function(bb_cor){
                      word = recode(word,
                                          "Derekx" = "Derek X",
                                          "Derekf" = "Derek F",
-                                   "Ky" = "Kyland"))
+                                   "Ky" = "Kyland",
+                                   "Dx" = "Derek X",
+                                   "Df" = "Derek F",
+                                   "Sb" = "Sarah"))
 }
